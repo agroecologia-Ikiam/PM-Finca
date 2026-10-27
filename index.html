@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ficha Finca — Prueba</title>
+<meta name="theme-color" content="#1f5c3a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ficha Finca">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+  :root{
+    --verde:#1f5c3a; --verde2:#2e7d4f; --hoja:#a8cf6f; --tierra:#8a5a2b;
+    --crema:#f4efe0; --papel:#fffdf7; --tinta:#1d2a22; --gris:#6b7568;
+    --linea:#e2dccb; --rojo:#b3402f; --ambar:#e8b448;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--crema);color:var(--tinta);
+       font-size:16px;line-height:1.45;padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+  header{background:var(--verde);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;position:sticky;top:0;z-index:5}
+  header h1{margin:0;font-size:1.15rem;letter-spacing:.2px}
+  header small{opacity:.85}
+  .estado{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .chip{font-size:.75rem;padding:3px 9px;border-radius:99px;background:rgba(255,255,255,.16)}
+  .chip.ok{background:var(--hoja);color:#16341f}
+  .chip.off{background:var(--ambar);color:#3a2a06}
+  main{max-width:640px;margin:0 auto;padding:12px 16px}
+  .card{background:var(--papel);border:1px solid var(--linea);border-radius:14px;padding:16px;margin:14px 0}
+  .card h2{margin:0 0 4px;font-size:1.05rem;color:var(--verde)}
+  .card p.ayuda{margin:0 0 12px;color:var(--gris);font-size:.88rem}
+  label{display:block;font-size:.86rem;font-weight:600;margin:12px 0 5px}
+  input,select{width:100%;font:inherit;padding:12px;border:1px solid #cfc8b4;border-radius:10px;background:#fff;color:var(--tinta)}
+  input:focus,select:focus{outline:2px solid var(--verde2);border-color:transparent}
+  .fila{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .fila3{display:grid;grid-template-columns:2fr 1fr;gap:10px}
+  button{font:inherit;font-weight:600;border:0;border-radius:12px;padding:13px 16px;cursor:pointer}
+  .btn{background:var(--verde);color:#fff;width:100%}
+  .btn2{background:#e7efe0;color:var(--verde)}
+  .btn-peligro{background:transparent;color:var(--rojo);padding:8px 10px}
+  .gps{display:flex;gap:10px;align-items:center}
+  .gps button{white-space:nowrap}
+  .gpsdato{font-size:.85rem;color:var(--gris);margin-top:8px}
+  .seg{display:flex;background:#ece6d4;border-radius:10px;padding:3px}
+  .seg button{flex:1;background:transparent;padding:9px;color:var(--gris);border-radius:8px}
+  .seg button.on{background:#fff;color:var(--verde);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .resultado{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+  .kpi{background:#f3f6ee;border-radius:10px;padding:10px}
+  .kpi span{display:block;font-size:.75rem;color:var(--gris)}
+  .kpi b{font-size:1.1rem}
+  .neg{color:var(--rojo)} .pos{color:var(--verde2)}
+  .barra{position:sticky;bottom:0;background:var(--papel);border-top:1px solid var(--linea);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;gap:10px;max-width:640px;margin:0 auto}
+  .lista .item{border-top:1px solid var(--linea);padding:12px 0;display:flex;justify-content:space-between;gap:10px;align-items:center}
+  .lista .item:first-child{border-top:0}
+  .item b{display:block}
+  .item small{color:var(--gris)}
+  .acciones{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+  .acciones button{padding:9px 12px;font-size:.85rem}
+  .aviso{background:#fff6dc;border:1px solid #f0d58a;border-radius:12px;padding:12px 14px;font-size:.9rem}
+  .aviso b{color:#6b4e09}
+  .check label{display:flex;gap:10px;align-items:flex-start;font-weight:500;margin:10px 0}
+  .check input{width:22px;height:22px;flex:none;margin-top:1px;accent-color:var(--verde)}
+  .vacio{color:var(--gris);font-size:.9rem}
+  #toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--tinta);color:#fff;padding:10px 16px;border-radius:99px;font-size:.9rem;opacity:0;transition:.25s;pointer-events:none;z-index:9;max-width:90vw;text-align:center}
+  #toast.ver{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <h1>Ficha Finca</h1>
+  <small>Versión de prueba · instalación y uso sin internet</small>
+  <div class="estado">
+    <span id="chipRed" class="chip">…</span>
+    <span id="chipApp" class="chip">…</span>
+    <span id="chipDatos" class="chip">…</span>
+  </div>
+</header>
+
+<main>
+  <div id="instalar" class="aviso" hidden></div>
+
+  <section class="card">
+    <h2>1. Productor y finca</h2>
+    <p class="ayuda">Datos mínimos de identificación.</p>
+    <label for="productor">Nombre del productor</label>
+    <input id="productor" autocomplete="off" placeholder="Ej.: Rosa Grefa">
+    <label for="finca">Nombre de la finca</label>
+    <input id="finca" autocomplete="off" placeholder="Ej.: Sumak Allpa">
+    <label for="comunidad">Comunidad / parroquia</label>
+    <input id="comunidad" autocomplete="off" placeholder="Ej.: Cotundo, Archidona">
+    <label>Superficie total</label>
+    <div class="fila3">
+      <input id="superficie" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
+      <div class="seg" id="segUnidad">
+        <button type="button" data-u="ha" class="on">ha</button>
+        <button type="button" data-u="cuadra">cuadras</button>
+      </div>
+    </div>
+    <div class="gpsdato" id="haInfo"></div>
+  </section>
+
+  <section class="card">
+    <h2>2. Ubicación</h2>
+    <p class="ayuda">Prueba el GPS con el celular en modo avión: el GPS funciona sin datos móviles.</p>
+    <div class="gps">
+      <button type="button" class="btn2" id="btnGps" style="flex:1">📍 Capturar ubicación</button>
+    </div>
+    <div class="gpsdato" id="gpsDato">Sin ubicación.</div>
+  </section>
+
+  <section class="card">
+    <h2>3. Un rubro de prueba</h2>
+    <p class="ayuda">Un solo cultivo, para verificar que los cálculos funcionan.</p>
+    <label for="cultivo">Cultivo</label>
+    <input id="cultivo" list="cultivos" autocomplete="off" placeholder="Ej.: Cacao">
+    <datalist id="cultivos"><option>Cacao</option><option>Plátano</option><option>Yuca</option><option>Maíz</option><option>Naranjilla</option><option>Café</option><option>Guayusa</option></datalist>
+    <div class="fila">
+      <div><label for="area">Área (ha)</label><input id="area" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div>
+      <div><label for="produccion">Producción al año (kg)</label><input id="produccion" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div>
+    </div>
+    <div class="fila">
+      <div><label for="autoconsumo">Autoconsumo (%)</label><input id="autoconsumo" type="number" inputmode="decimal" min="0" max="100" step="any" placeholder="0"></div>
+      <div><label for="precio">Precio de venta ($/kg)</label><input id="precio" type="number" inputmode="decimal" min="0" step="any" placeholder="0.00"></div>
+    </div>
+    <label for="insumos">Gasto en insumos al año ($)</label>
+    <input id="insumos" type="number" inputmode="decimal" min="0" step="any" placeholder="0.00">
+    <div class="fila">
+      <div><label for="jfam">Jornales familiares/año</label><input id="jfam" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
+      <div><label for="jcont">Jornales contratados/año</label><input id="jcont" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
+    </div>
+    <label for="jornal">Costo del jornal en la zona ($/día)</label>
+    <input id="jornal" type="number" inputmode="decimal" min="0" step="any" placeholder="15.00">
+
+    <label style="margin-top:16px">Resultados (se calculan solos)</label>
+    <div class="resultado">
+      <div class="kpi"><span>Ingreso por ventas</span><b id="rIngreso">$0.00</b></div>
+      <div class="kpi"><span>Costo pagado</span><b id="rCosto">$0.00</b></div>
+      <div class="kpi"><span>Utilidad (ingreso neto familiar)</span><b id="rUtil1">$0.00</b></div>
+      <div class="kpi"><span>Utilidad cobrando mano de obra familiar</span><b id="rUtil2">$0.00</b></div>
+      <div class="kpi"><span>Rendimiento</span><b id="rRend">— kg/ha</b></div>
+      <div class="kpi"><span>Relación beneficio/costo</span><b id="rBC">—</b></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Fichas guardadas en este celular</h2>
+    <div class="lista" id="lista"><p class="vacio">Todavía no hay fichas.</p></div>
+    <div style="display:flex;gap:10px;margin-top:10px">
+      <button type="button" class="btn2" id="btnRespaldo" style="flex:1">Exportar respaldo</button>
+      <button type="button" class="btn2" id="btnImportar" style="flex:1">Importar respaldo</button>
+      <input type="file" id="archivoImport" accept=".json,application/json" hidden>
+    </div>
+  </section>
+
+  <section class="card check">
+    <h2>Lista de verificación de la prueba</h2>
+    <p class="ayuda">Marca cada paso cuando lo compruebes.</p>
+    <label><input type="checkbox" data-k="c1"> <span>La app quedó instalada con su ícono en la pantalla de inicio.</span></label>
+    <label><input type="checkbox" data-k="c2"> <span>Con el celular en <b>modo avión</b>, la app abre desde el ícono.</span></label>
+    <label><input type="checkbox" data-k="c3"> <span>En modo avión, el GPS capturó la ubicación.</span></label>
+    <label><input type="checkbox" data-k="c4"> <span>Los resultados cambian mientras escribo los datos.</span></label>
+    <label><input type="checkbox" data-k="c5"> <span>Guardé la ficha, cerré la app por completo y al abrirla seguía ahí.</span></label>
+    <label><input type="checkbox" data-k="c6"> <span>Se generó el PDF en modo avión y pude abrirlo o compartirlo.</span></label>
+    <label><input type="checkbox" data-k="c7"> <span>Exporté el respaldo y lo pude enviar (con internet).</span></label>
+  </section>
+</main>
+
+<div class="barra">
+  <button type="button" class="btn2" id="btnNueva" style="flex:1">Nueva</button>
+  <button type="button" class="btn" id="btnGuardar" style="flex:2">Guardar ficha</button>
+</div>
+<div id="toast"></div>
+
+<script src="jspdf.umd.min.js"></script>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const HA_POR_CUADRA = 0.7056; // Referencial; en la versión final será configurable por zona.
+let unidad = 'ha';
+let ubicacion = null;
+let editandoId = null;
+
+/* ---------- utilidades ---------- */
+const num = (id) => { const v = parseFloat(($(id).value || '').replace(',', '.')); return isFinite(v) ? v : 0; };
+const dinero = (v) => (v < 0 ? '-$' : '$') + Math.abs(v).toLocaleString('es-EC', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const n2 = (v, d = 2) => v.toLocaleString('es-EC', { minimumFractionDigits: d, maximumFractionDigits: d });
+function toast(t) { const e = $('toast'); e.textContent = t; e.classList.add('ver'); clearTimeout(e._t); e._t = setTimeout(() => e.classList.remove('ver'), 2600); }
+
+/* ---------- base de datos local (IndexedDB) ---------- */
+const DB = {
+  abrir() {
+    return new Promise((ok, mal) => {
+      const r = indexedDB.open('fichafinca', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('fichas', { keyPath: 'id' });
+      r.onsuccess = () => ok(r.result); r.onerror = () => mal(r.error);
+    });
+  },
+  async tx(modo, fn) {
+    const db = await this.abrir();
+    return new Promise((ok, mal) => {
+      const t = db.transaction('fichas', modo); const s = t.objectStore('fichas');
+      const req = fn(s); t.oncomplete = () => ok(req && req.result); t.onerror = () => mal(t.error);
+    });
+  },
+  guardar(f) { return this.tx('readwrite', (s) => s.put(f)); },
+  todas() { return this.tx('readonly', (s) => s.getAll()); },
+  borrar(id) { return this.tx('readwrite', (s) => s.delete(id)); }
+};
+
+/* ---------- conversión a UTM (WGS84) ---------- */
+function aUTM(lat, lon) {
+  const a = 6378137, f = 1 / 298.257223563, k0 = 0.9996;
+  const e2 = f * (2 - f), ep2 = e2 / (1 - e2);
+  const zona = Math.floor((lon + 180) / 6) + 1;
+  const lon0 = ((zona - 1) * 6 - 180 + 3) * Math.PI / 180;
+  const φ = lat * Math.PI / 180, λ = lon * Math.PI / 180;
+  const N = a / Math.sqrt(1 - e2 * Math.sin(φ) ** 2);
+  const T = Math.tan(φ) ** 2, C = ep2 * Math.cos(φ) ** 2, A = Math.cos(φ) * (λ - lon0);
+  const M = a * ((1 - e2 / 4 - 3 * e2 ** 2 / 64 - 5 * e2 ** 3 / 256) * φ
+    - (3 * e2 / 8 + 3 * e2 ** 2 / 32 + 45 * e2 ** 3 / 1024) * Math.sin(2 * φ)
+    + (15 * e2 ** 2 / 256 + 45 * e2 ** 3 / 1024) * Math.sin(4 * φ)
+    - (35 * e2 ** 3 / 3072) * Math.sin(6 * φ));
+  const x = k0 * N * (A + (1 - T + C) * A ** 3 / 6 + (5 - 18 * T + T ** 2 + 72 * C - 58 * ep2) * A ** 5 / 120) + 500000;
+  let y = k0 * (M + N * Math.tan(φ) * (A ** 2 / 2 + (5 - T + 9 * C + 4 * C ** 2) * A ** 4 / 24 + (61 - 58 * T + T ** 2 + 600 * C - 330 * ep2) * A ** 6 / 720));
+  if (lat < 0) y += 10000000;
+  return { zona: zona + (lat < 0 ? ' Sur' : ' Norte'), x, y };
+}
+
+/* ---------- cálculos ---------- */
+function calcular() {
+  const produccion = num('produccion'), auto = Math.min(Math.max(num('autoconsumo'), 0), 100);
+  const vendido = produccion * (1 - auto / 100);
+  const ingreso = vendido * num('precio');
+  const jornal = num('jornal');
+  const costoPagado = num('insumos') + num('jcont') * jornal;
+  const costoFam = num('jfam') * jornal;
+  const util1 = ingreso - costoPagado;
+  const util2 = ingreso - costoPagado - costoFam;
+  const area = num('area');
+  const rend = area > 0 ? produccion / area : null;
+  const costoTotal = costoPagado + costoFam;
+  const bc = costoTotal > 0 ? ingreso / costoTotal : null;
+  const supHa = unidad === 'ha' ? num('superficie') : num('superficie') * HA_POR_CUADRA;
+  return { produccion, auto, vendido, ingreso, costoPagado, costoFam, costoTotal, util1, util2, rend, bc, supHa };
+}
+function pintar() {
+  const r = calcular();
+  $('rIngreso').textContent = dinero(r.ingreso);
+  $('rCosto').textContent = dinero(r.costoPagado);
+  const u1 = $('rUtil1'), u2 = $('rUtil2');
+  u1.textContent = dinero(r.util1); u1.className = r.util1 < 0 ? 'neg' : 'pos';
+  u2.textContent = dinero(r.util2); u2.className = r.util2 < 0 ? 'neg' : 'pos';
+  $('rRend').textContent = r.rend === null ? '— kg/ha' : n2(r.rend, 0) + ' kg/ha';
+  $('rBC').textContent = r.bc === null ? '—' : n2(r.bc);
+  $('haInfo').textContent = unidad === 'cuadra' && num('superficie') > 0 ? '= ' + n2(r.supHa) + ' ha (1 cuadra = ' + HA_POR_CUADRA + ' ha, referencial)' : '';
+}
+document.querySelectorAll('input').forEach((i) => i.addEventListener('input', pintar));
+document.querySelectorAll('#segUnidad button').forEach((b) => b.addEventListener('click', () => {
+  unidad = b.dataset.u; document.querySelectorAll('#segUnidad button').forEach((x) => x.classList.toggle('on', x === b)); pintar();
+}));
+
+/* ---------- GPS ---------- */
+$('btnGps').addEventListener('click', () => {
+  if (!navigator.geolocation) { toast('Este dispositivo no tiene GPS disponible'); return; }
+  $('gpsDato').textContent = 'Buscando señal GPS… (al aire libre es más rápido)';
+  navigator.geolocation.getCurrentPosition((p) => {
+    const { latitude: lat, longitude: lon, accuracy, altitude } = p.coords;
+    const u = aUTM(lat, lon);
+    ubicacion = { lat, lon, precision: accuracy, altitud: altitude, zona: u.zona, x: u.x, y: u.y };
+    mostrarGps(); toast('Ubicación capturada');
+  }, (e) => {
+    $('gpsDato').textContent = 'No se pudo obtener la ubicación: ' + (e.code === 1 ? 'permiso denegado. Actívalo en la configuración del celular.' : 'sin señal. Intenta al aire libre.');
+  }, { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 });
+});
+function mostrarGps() {
+  if (!ubicacion) { $('gpsDato').textContent = 'Sin ubicación.'; return; }
+  const u = ubicacion;
+  $('gpsDato').innerHTML = 'UTM zona ' + u.zona + ' · X ' + n2(u.x, 0) + ' · Y ' + n2(u.y, 0) +
+    '<br>Lat ' + u.lat.toFixed(6) + ' · Lon ' + u.lon.toFixed(6) +
+    ' · precisión ±' + Math.round(u.precision) + ' m' + (u.altitud != null ? ' · altitud ' + Math.round(u.altitud) + ' m' : '');
+}
+
+/* ---------- formulario ---------- */
+const CAMPOS = ['productor', 'finca', 'comunidad', 'superficie', 'cultivo', 'area', 'produccion', 'autoconsumo', 'precio', 'insumos', 'jfam', 'jcont', 'jornal'];
+function leer() { const d = {}; CAMPOS.forEach((c) => d[c] = $(c).value.trim()); d.unidad = unidad; return d; }
+function cargar(f) {
+  CAMPOS.forEach((c) => $(c).value = (f.datos && f.datos[c]) || '');
+  unidad = (f.datos && f.datos.unidad) || 'ha';
+  document.querySelectorAll('#segUnidad button').forEach((x) => x.classList.toggle('on', x.dataset.u === unidad));
+  ubicacion = f.ubicacion || null; editandoId = f.id || null; mostrarGps(); pintar();
+}
+function limpiar() { cargar({}); }
+
+$('btnGuardar').addEventListener('click', async () => {
+  const datos = leer();
+  if (!datos.productor) { toast('Escribe al menos el nombre del productor'); $('productor').focus(); return; }
+  const ahora = new Date().toISOString();
+  const f = { id: editandoId || ('F' + Date.now()), creada: ahora, actualizada: ahora, datos, ubicacion, resultados: calcular(), exportada: false };
+  if (editandoId) { const vieja = (await DB.todas()).find((x) => x.id === editandoId); if (vieja) f.creada = vieja.creada; }
+  await DB.guardar(f); editandoId = f.id;
+  toast('Ficha guardada en este celular'); listar();
+});
+$('btnNueva').addEventListener('click', () => { limpiar(); window.scrollTo({ top: 0, behavior: 'smooth' }); toast('Ficha en blanco'); });
+
+async function listar() {
+  const fichas = (await DB.todas()).sort((a, b) => b.actualizada.localeCompare(a.actualizada));
+  const cont = $('lista');
+  const sinExp = fichas.filter((f) => !f.exportada).length;
+  $('chipDatos').textContent = fichas.length + ' ficha' + (fichas.length === 1 ? '' : 's') + (sinExp ? ' · ' + sinExp + ' sin respaldo' : '');
+  $('chipDatos').className = 'chip' + (sinExp ? ' off' : '');
+  if (!fichas.length) { cont.innerHTML = '<p class="vacio">Todavía no hay fichas.</p>'; return; }
+  cont.innerHTML = '';
+  fichas.forEach((f) => {
+    const el = document.createElement('div'); el.className = 'item';
+    const fecha = new Date(f.actualizada).toLocaleString('es-EC', { dateStyle: 'medium', timeStyle: 'short' });
+    el.innerHTML = '<div><b></b><small></small></div><div class="acciones"><button class="btn2" data-a="abrir">Abrir</button><button class="btn" data-a="pdf">PDF</button><button class="btn-peligro" data-a="borrar">Borrar</button></div>';
+    el.querySelector('b').textContent = f.datos.productor + (f.datos.finca ? ' — ' + f.datos.finca : '');
+    el.querySelector('small').textContent = fecha + ' · utilidad ' + dinero(f.resultados.util1);
+    el.querySelector('[data-a=abrir]').onclick = () => { cargar(f); window.scrollTo({ top: 0, behavior: 'smooth' }); toast('Ficha abierta para editar'); };
+    el.querySelector('[data-a=pdf]').onclick = () => generarPDF(f);
+    el.querySelector('[data-a=borrar]').onclick = async () => { if (confirm('¿Borrar la ficha de ' + f.datos.productor + '? No se puede deshacer.')) { await DB.borrar(f.id); if (editandoId === f.id) limpiar(); listar(); } };
+    cont.appendChild(el);
+  });
+}
+
+/* ---------- PDF ---------- */
+async function generarPDF(f) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const d = f.datos, r = f.resultados, u = f.ubicacion;
+  const W = 210, M = 18; let y = 0;
+  doc.setFillColor(31, 92, 58); doc.rect(0, 0, W, 30, 'F');
+  doc.setTextColor(255); doc.setFont('helvetica', 'bold'); doc.setFontSize(16);
+  doc.text('Diagnóstico de finca', M, 14);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5);
+  doc.text('Ficha Finca · versión de prueba · ' + new Date(f.actualizada).toLocaleDateString('es-EC'), M, 22);
+  y = 42; doc.setTextColor(29, 42, 34);
+
+  const seccion = (t) => { doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(31, 92, 58); doc.text(t, M, y); doc.setDrawColor(226, 220, 203); doc.line(M, y + 2, W - M, y + 2); y += 9; doc.setTextColor(29, 42, 34); };
+  const fila = (k, v) => { doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(107, 117, 104); doc.text(k, M, y); doc.setTextColor(29, 42, 34); doc.setFont('helvetica', 'bold'); doc.text(String(v || '—'), M + 70, y); y += 7; };
+
+  seccion('1. Productor y finca');
+  fila('Productor', d.productor); fila('Finca', d.finca); fila('Comunidad / parroquia', d.comunidad);
+  fila('Superficie total', d.superficie ? n2(r.supHa) + ' ha' + (d.unidad === 'cuadra' ? ' (' + d.superficie + ' cuadras)' : '') : '—');
+  y += 3; seccion('2. Ubicación');
+  if (u) { fila('Zona UTM (WGS84)', u.zona); fila('Coordenadas X / Y', n2(u.x, 0) + ' / ' + n2(u.y, 0)); fila('Latitud / longitud', u.lat.toFixed(6) + ' / ' + u.lon.toFixed(6)); fila('Precisión GPS', '±' + Math.round(u.precision) + ' m'); }
+  else fila('Ubicación', 'No registrada');
+  y += 3; seccion('3. Rubro: ' + (d.cultivo || 'sin nombre'));
+  fila('Área', (d.area || 0) + ' ha'); fila('Producción anual', n2(r.produccion, 0) + ' kg'); fila('Autoconsumo', n2(r.auto, 0) + ' %');
+  fila('Cantidad vendida', n2(r.vendido, 0) + ' kg'); fila('Precio de venta', dinero(parseFloat(d.precio) || 0) + ' / kg');
+  fila('Rendimiento', r.rend === null ? '—' : n2(r.rend, 0) + ' kg/ha');
+
+  y += 3; seccion('4. Resultados económicos (anuales)');
+  const filas = [
+    ['Ingreso por ventas', dinero(r.ingreso)],
+    ['Insumos', dinero(parseFloat(d.insumos) || 0)],
+    ['Mano de obra contratada', dinero(r.costoPagado - (parseFloat(d.insumos) || 0))],
+    ['Mano de obra familiar (valorada)', dinero(r.costoFam)],
+    ['Utilidad — ingreso neto familiar', dinero(r.util1)],
+    ['Utilidad — cobrando mano de obra familiar', dinero(r.util2)],
+    ['Relación beneficio/costo', r.bc === null ? '—' : n2(r.bc)]
+  ];
+  filas.forEach(([k, v], i) => {
+    const destacado = i === 4 || i === 5;
+    if (destacado) { doc.setFillColor(243, 246, 238); doc.rect(M, y - 5, W - 2 * M, 8, 'F'); }
+    doc.setFontSize(10); doc.setFont('helvetica', destacado ? 'bold' : 'normal'); doc.setTextColor(29, 42, 34);
+    doc.text(k, M + 2, y); doc.text(v, W - M - 2, y, { align: 'right' }); y += 8;
+  });
+
+  y = 262; doc.setDrawColor(150); doc.line(M, y, M + 70, y); doc.line(W - M - 70, y, W - M, y);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(107, 117, 104);
+  doc.text('Firma del productor', M, y + 5); doc.text('Firma del técnico', W - M - 70, y + 5);
+  doc.setFontSize(8); doc.text('Generado sin conexión en el dispositivo. Documento de prueba.', M, 285);
+
+  const nombre = 'Ficha_' + (d.productor || 'finca').replace(/[^\wáéíóúñÁÉÍÓÚÑ]+/g, '_') + '.pdf';
+  const blob = doc.output('blob');
+  const archivo = new File([blob], nombre, { type: 'application/pdf' });
+  if (navigator.canShare && navigator.canShare({ files: [archivo] })) {
+    try { await navigator.share({ files: [archivo], title: nombre }); return; } catch (e) { if (e.name === 'AbortError') return; }
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = nombre; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+  toast('PDF generado: ' + nombre);
+}
+
+/* ---------- respaldo ---------- */
+$('btnRespaldo').addEventListener('click', async () => {
+  const fichas = await DB.todas();
+  if (!fichas.length) { toast('No hay fichas para respaldar'); return; }
+  const nombre = 'respaldo_fichas_' + new Date().toISOString().slice(0, 10) + '.json';
+  const blob = new Blob([JSON.stringify({ app: 'fichafinca', version: 1, exportado: new Date().toISOString(), fichas }, null, 2)], { type: 'application/json' });
+  const archivo = new File([blob], nombre, { type: 'application/json' });
+  let ok = false;
+  if (navigator.canShare && navigator.canShare({ files: [archivo] })) {
+    try { await navigator.share({ files: [archivo], title: nombre }); ok = true; } catch (e) { if (e.name === 'AbortError') return; }
+  }
+  if (!ok) { const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = nombre; a.click(); setTimeout(() => URL.revokeObjectURL(url), 60000); }
+  for (const f of fichas) { f.exportada = true; await DB.guardar(f); }
+  listar(); toast('Respaldo listo: ' + fichas.length + ' fichas');
+});
+$('btnImportar').addEventListener('click', () => $('archivoImport').click());
+$('archivoImport').addEventListener('change', async (e) => {
+  const file = e.target.files[0]; if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    if (!data.fichas) throw new Error('formato');
+    const existentes = new Set((await DB.todas()).map((f) => f.id)); let nuevas = 0;
+    for (const f of data.fichas) { if (!existentes.has(f.id)) { await DB.guardar(f); nuevas++; } }
+    toast(nuevas + ' fichas importadas (' + (data.fichas.length - nuevas) + ' ya existían)'); listar();
+  } catch { toast('El archivo no es un respaldo válido'); }
+  e.target.value = '';
+});
+
+/* ---------- lista de verificación ---------- */
+document.querySelectorAll('.check input').forEach((c) => {
+  try { c.checked = localStorage.getItem('chk_' + c.dataset.k) === '1'; } catch {}
+  c.addEventListener('change', () => { try { localStorage.setItem('chk_' + c.dataset.k, c.checked ? '1' : '0'); } catch {} });
+});
+
+/* ---------- estado: red, instalación, almacenamiento ---------- */
+function estadoRed() { const on = navigator.onLine; $('chipRed').textContent = on ? 'Con internet' : 'Sin internet · funcionando'; $('chipRed').className = 'chip ' + (on ? '' : 'off'); }
+addEventListener('online', estadoRed); addEventListener('offline', estadoRed); estadoRed();
+const instalada = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+$('chipApp').textContent = instalada ? 'App instalada' : 'Abierta en navegador';
+$('chipApp').className = 'chip' + (instalada ? ' ok' : '');
+if (!instalada) {
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const box = $('instalar'); box.hidden = false;
+  box.innerHTML = ios
+    ? '<b>Instálala para usarla sin internet:</b> en Safari toca <b>Compartir</b> (cuadro con flecha) → <b>Agregar a inicio</b>. Luego ábrela siempre desde el ícono.'
+    : '<b>Instálala para usarla sin internet:</b> en Chrome toca el menú <b>⋮</b> → <b>Instalar app</b> (o "Agregar a pantalla de inicio"). Luego ábrela desde el ícono.';
+}
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch((e) => console.warn('SW', e));
+
+pintar(); listar();
+</script>
+</body>
+</html>
